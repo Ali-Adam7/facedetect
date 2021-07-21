@@ -1,9 +1,9 @@
 import React from 'react'
 
-const ImageLinkForm = ({onInputChange, onSubmit}) => {
+const ImageLinkForm = ({onInputChange, onSubmit, name}) => {
     return(
         <div className = "tc">
-        <p className = "p3">{'Detect Face'}</p>
+        <h3 style = {{color: 'white'}}>{name.toUpperCase()}</h3>
         <div className = "pa4 shadow-5 br3"> 
         <input className = "f4 pa2 " type = "text"
         onChange= {onInputChange}></input>

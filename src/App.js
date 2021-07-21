@@ -7,9 +7,12 @@ import Logo from './components/Logo.js'
 import ImageLinkForm from './components/ImageLinkForm.js'
 import Particles from 'react-particles-js';
 import Clarifai from 'clarifai'
+import FaceRec from './components/FaceRec'
+import SignIn from './components/SignIn.js'
+import Register from './components/Register.js'
 
 const app = new Clarifai.App({
-  apiKey:'c0c0ac362b03416da06ab3fa36fb58e3'
+  apiKey: 'b141f9f6bef94672b8220b74330d2b43'
 })
 
 
@@ -17,157 +20,232 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      input : ''
+      name:'Detect Face',
+      input: '',
+      image: '',
+      box: {},
+      route: 'signin',
+      signedin: false,
+
     }
   }
- 
-  onInputChange = (event) => {
-    this.setState ({
-      input : event.target.value
+
+  calculateLocation = (data) => {
+    let Face = data.outputs[0].data.regions[0].region_info.bounding_box
+    let image = document.getElementById('inputimg')
+    let width = Number(image.width);
+    let height = Number(image.height);
+    return {
+
+      leftCol: Face.left_col * width,
+      topRow: Face.top_row * height,
+      rightCol: width - (Face.right_col * width),
+      bottomRow: height - (Face.bottom_row * height)
+
+
+    }
+
+  }
+
+  displayFaceBox = (box) => {
+    this.setState({ box: box })
+  }
+
+  expression = (data) =>{
+    let name = (data.outputs[0].data.regions[0].data.concepts[0].name);
+    this.setState({
+      name: name
     })
   }
-  
-  onSubmit = () =>{
-    console.log(this.state.input)
-    app.models.predict('c0c0ac362b03416da06ab3fa36fb58e3', this.state.input).then(
-      function(response){
+  onInputChange = (event) => {
+    this.setState({
+      input: event.target.value,
 
-      },
-      function(err) {
-
-      }
-      );
-
-   
+    })
   }
-render() {
-  
 
-  return (
+  onSubmit = () => {
+
+    this.setState({
+      image: this.state.input
+
+    })
+
+    app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input).then((response) => {
+      this.displayFaceBox(this.calculateLocation(response));
+      app.models.predict(Clarifai.CELEBRITY_MODEL, this.state.input).then((response2) =>{
+        this.expression(response2)
+      })
+    }).catch(err => {
+
+    })
+
+
+
+  }
+
+  onRouteChange = (route) => {
+    if(route == 'home'){
+      this.setState({
+        signedin : true
+      })
+    } 
+    else {
+      this.setState({
+        signedin : false
+      })
     
-    <div className = "App">
- <Particles className="particles" 
- param={{
-  "particles": {
-    "number": {
-      "value": 80,
-      "density": {
-        "enable": true,
-        "value_area": 800
-      }
-    },
-    "color": {
-      "value": "#ffffff"
-    },
-    "shape": {
-      "type": "circle",
-      "stroke": {
-        "width": 0,
-        "color": "#000000"
-      },
-      "polygon": {
-        "nb_sides": 5
-      },
-      "image": {
-        "src": "img/github.svg",
-        "width": 100,
-        "height": 100
-      }
-    },
-    "opacity": {
-      "value": 0.5,
-      "random": false,
-      "anim": {
-        "enable": false,
-        "speed": 1,
-        "opacity_min": 0.1,
-        "sync": false
-      }
-    },
-    "size": {
-      "value": 3,
-      "random": true,
-      "anim": {
-        "enable": false,
-        "speed": 40,
-        "size_min": 0.1,
-        "sync": false
-      }
-    },
-    "line_linked": {
-      "enable": true,
-      "distance": 150,
-      "color": "#ffffff",
-      "opacity": 0.4,
-      "width": 1
-    },
-    "move": {
-      "enable": true,
-      "speed": 6,
-      "random": true,
-      "direction": "none",
-      "bounce": true,
-      "out_mode": "bounce",
-      "attract": {
-        "enable": false,
-        "rotateX": 600,
-        "rotateY": 1200
-      }
     }
+    this.setState({
+      route : route
+    })
 
-  },
-  "interactivity": {
-    "detect_on": "canvas",
-    "events": {
-      "onhover": {
-        "enable": true,
-        "mode": "repulse"
-      },
-      "onclick": {
-        "enable": true,
-        "mode": "push"
-      },
-      "resize": true
-    },
-    "modes": {
-      "grab": {
-        "distance": 400,
-        "line_linked": {
-          "opacity": 1
+  }
+  render() {
+
+
+    return (
+
+      <div className="App">
+        <Particles className="particles"
+          param={{
+            "particles": {
+              "number": {
+                "value": 80,
+                "density": {
+                  "enable": true,
+                  "value_area": 800
+                }
+              },
+              "color": {
+                "value": "#ffffff"
+              },
+              "shape": {
+                "type": "circle",
+                "stroke": {
+                  "width": 0,
+                  "color": "#000000"
+                },
+                "polygon": {
+                  "nb_sides": 5
+                },
+                "image": {
+                  "src": "img/github.svg",
+                  "width": 100,
+                  "height": 100
+                }
+              },
+              "opacity": {
+                "value": 0.5,
+                "random": false,
+                "anim": {
+                  "enable": false,
+                  "speed": 1,
+                  "opacity_min": 0.1,
+                  "sync": false
+                }
+              },
+              "size": {
+                "value": 3,
+                "random": true,
+                "anim": {
+                  "enable": false,
+                  "speed": 40,
+                  "size_min": 0.1,
+                  "sync": false
+                }
+              },
+              "line_linked": {
+                "enable": true,
+                "distance": 150,
+                "color": "#ffffff",
+                "opacity": 0.4,
+                "width": 1
+              },
+              "move": {
+                "enable": true,
+                "speed": 6,
+                "random": true,
+                "direction": "none",
+                "bounce": true,
+                "out_mode": "bounce",
+                "attract": {
+                  "enable": false,
+                  "rotateX": 600,
+                  "rotateY": 1200
+                }
+              }
+
+            },
+            "interactivity": {
+              "detect_on": "canvas",
+              "events": {
+                "onhover": {
+                  "enable": true,
+                  "mode": "repulse"
+                },
+                "onclick": {
+                  "enable": true,
+                  "mode": "push"
+                },
+                "resize": true
+              },
+              "modes": {
+                "grab": {
+                  "distance": 400,
+                  "line_linked": {
+                    "opacity": 1
+                  }
+                },
+                "bubble": {
+                  "distance": 400,
+                  "size": 40,
+                  "duration": 2,
+                  "opacity": 8,
+                  "speed": 3
+                },
+                "repulse": {
+                  "distance": 200,
+                  "duration": 0.4
+                },
+                "push": {
+                  "particles_nb": 4
+                },
+                "remove": {
+                  "particles_nb": 2
+                }
+              }
+            },
+            "retina_detect": true,
+
+          }}
+
+        />
+        <Navigation  onRouteChange={this.onRouteChange} isSignedIn = {this.state.signedin}/>
+        {
+          this.state.route == 'signin'
+            ? <SignIn onRouteChange={this.onRouteChange} />
+            : (
+
+              this.state.route == 'register' ?  <Register onRouteChange={this.onRouteChange} />
+              :       <div> <div style={{ display: "flex", justifyContent: 'center' }}><Logo /> </div>
+
+
+              <div style={{ display: "flex", justifyContent: 'center' }}><ImageLinkForm
+                onSubmit={this.onSubmit}
+                onInputChange={this.onInputChange} 
+                name = {this.state.name}/> </div>
+              <FaceRec image={this.state.image} box={this.state.box}/>
+            </div>
+
+            )
+            
+      
+
         }
-      },
-      "bubble": {
-        "distance": 400,
-        "size": 40,
-        "duration": 2,
-        "opacity": 8,
-        "speed": 3
-      },
-      "repulse": {
-        "distance": 200,
-        "duration": 0.4
-      },
-      "push": {
-        "particles_nb": 4
-      },
-      "remove": {
-        "particles_nb": 2
-      }
-    }
-  },
-  "retina_detect": true,
-
-}}
-
- />
-    <Navigation/>
-    <div style = {{display:"flex",justifyContent:'center'}}><Logo/> </div>
-
-    <div style = {{display:"flex",justifyContent:'center'}}><ImageLinkForm 
-    onSubmit = {this.onSubmit}
-    onInputChange = {this.onInputChange}/> </div>
-  </div>
-  );
-}}
+      </div>
+    );
+  }
+}
 
 export default App;

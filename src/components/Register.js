@@ -1,22 +1,56 @@
-import React from 'react'
-const Register = ({onRouteChange}) => {
+import React, { Component } from 'react'
+class Register extends Component{
+
+  constructor() {
+    super();
+    this.state = {
+      email: "",
+      pass: "",
+      name:""
+
+    }
+  }
+render() {
+  
+  const onEmailChange = (event) => {
+    this.setState(
+      {
+        email:event.target.value
+      }
+    )
+  }
+
+  const onPassChange = (event) => {
+    this.setState(
+      {
+        pass:event.target.value
+      }
+    )
+  }
+
+  const onNameChange = (event) => {
+    this.setState(
+      {
+        name:event.target.value
+      }
+    )
+  }
     return (
         <article  className="br3 tc ba dark-gray b--black-10 mv4 w-100 w-50-m w-25-l mw6 center">
         <main className="pa4 black-80">
-        <form className="measure center">
           <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
             <legend className="f4 tcfw6 ph0 mh0">Sign Up</legend>
             <div className="mt3">
               <label className="db fw6 lh-copy f6" htmlFor="email-address">Name</label>
-              <input className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-75" type="text" name="name"  id="name"/>
+              <input onChange = {onNameChange}className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-75" type="text"/>
             </div>
             <div className="mt3">
               <label className="db fw6 lh-copy f6" htmlFor="email-address">Email</label>
-              <input className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-75" type="email" name="email-address"  id="email-address"/>
+              <input  onChange = {onEmailChange} className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-75" type="email"/>
             </div>
             <div className="mv3">
               <label className="db fw6 lh-copy f6" htmlFor="password">Password</label>
-              <input className="b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-75" type="password" name="password"  id="password"/>
+              <input onChange = {onPassChange} className="b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-75" type="password"/>
             </div>
           </fieldset>
           <div className="">
@@ -24,14 +58,33 @@ const Register = ({onRouteChange}) => {
           </div>
           <div className="lh-copy mt3">
           <input className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib" type="submit" 
-            onClick = {() => onRouteChange('home')}
+            onClick = {() => {
+              fetch('http://localhost:3000/register',{
+                method:'post',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({
+                  email:this.state.email,
+                  password:this.state.pass,
+                  name:this.state.name
+                })
+              }).then((response)=>{
+                response.json().then((res)=>{
+                  console.log(res)
+                  this.props.loadUser(res)
+                  this.props.onRouteChange('home');
+
+              
+                })
+              })
+            
+            
+            }}
             value="Register"/>
           </div>
-        </form>
       </main>
       </article>
       
         
     )
-}
+}}
 export default Register

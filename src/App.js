@@ -16,9 +16,10 @@ const app = new Clarifai.App({
 })
 
 
+
 class App extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       name:'Detect Face',
       input: '',
@@ -26,10 +27,28 @@ class App extends Component {
       box: {},
       route: 'signin',
       signedin: false,
+      user: {
+
+  id:'',
+  name:'',
+  email:"",
+  password:'',
+  entries:0,
+  joined: ''
+      },
+      entries:0,
+
 
     }
   }
-
+  componentDidMount(){
+    fetch("http://localhost:3000/").then((response)=>{
+      response.json().then((res)=>{
+        console.log(res)
+      })
+    })
+  }
+ 
   calculateLocation = (data) => {
     let Face = data.outputs[0].data.regions[0].region_info.bounding_box
     let image = document.getElementById('inputimg')
@@ -63,7 +82,44 @@ class App extends Component {
 
     })
   }
+loadUser = ({name,email,password,id,entries,joined}) =>{
 
+this.setState({
+  user:{
+    id:id,
+    name:name,
+    email:email,
+    password:password,
+    joined: joined
+  },
+  entries:entries,
+
+
+})
+}
+
+signOutUser = () =>{
+
+    this.setState({
+
+      name:'Detect Face',
+      input: '',
+      image: '',
+      box: {},
+      route: 'signin',
+      signedin: false,
+      user:{
+        id:'',
+        name:'',
+        email:"",
+        password:'',
+        joined: ''
+      },
+      entries:0,
+    
+    })
+ 
+}
   onSubmit = () => {
 
     this.setState({
@@ -74,8 +130,33 @@ class App extends Component {
     app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input).then((response) => {
       this.displayFaceBox(this.calculateLocation(response));
       app.models.predict(Clarifai.CELEBRITY_MODEL, this.state.input).then((response2) =>{
+        
         this.expression(response2)
+        if(this.state.user.name != ''){
+
+       
+        fetch('http://localhost:3000/img', {
+          method:'put',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            email:this.state.user.email,
+          })
+        }).then((response) =>{
+          response.json().then((res)=>{
+            this.setState({
+              entries:res
+            })
+          })
+       
+        })
+      }
+
+
+
+
+
       })
+      
     }).catch(err => {
 
     })
@@ -221,14 +302,14 @@ class App extends Component {
           }}
 
         />
-        <Navigation  onRouteChange={this.onRouteChange} isSignedIn = {this.state.signedin}/>
+        <Navigation  onRouteChange={this.onRouteChange}  signOutUser = {this.signOutUser}  isSignedIn = {this.state.signedin}/>
         {
           this.state.route == 'signin'
-            ? <SignIn onRouteChange={this.onRouteChange} />
+            ? <SignIn onRouteChange={this.onRouteChange} loadUser = {this.loadUser} />
             : (
 
-              this.state.route == 'register' ?  <Register onRouteChange={this.onRouteChange} />
-              :       <div> <div style={{ display: "flex", justifyContent: 'center' }}><Logo /> </div>
+              this.state.route == 'register' ?  <Register onRouteChange={this.onRouteChange} loadUser = {this.loadUser} />
+              :       <div> <div style={{ display: "flex", justifyContent: 'center' }}><Logo name = {this.state.user.name} entries = {this.state.entries}/> </div>
 
 
               <div style={{ display: "flex", justifyContent: 'center' }}><ImageLinkForm

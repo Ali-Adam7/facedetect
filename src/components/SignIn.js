@@ -21,13 +21,7 @@ class SignIn extends Component {
       )
     }
 
-    const onPassChange = (event) => {
-      this.setState(
-        {
-          pass:event.target.value
-        }
-      )
-    }
+
     return(
       <article  className="br3 tc ba dark-gray b--black-10 mv4 w-100 w-50-m w-25-l mw6 center">
       <main className="pa4 black-80">
@@ -37,26 +31,22 @@ class SignIn extends Component {
             <label className="db fw6 lh-copy f6" htmlFor="email-address">Email</label>
             <input onChange = {onEmailChange} className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-75" type="email"/>
           </div>
-          <div className="mv3">
-            <label className="db fw6 lh-copy f6" htmlFor="password">Password</label>
-            <input onChange = {onPassChange} className="b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-75" type="password"/>
-          </div>
+          
         </fieldset>
         <div className="">
           <input className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib" type="submit" 
           onClick = {() => {
-            fetch('http://localhost:3000/signin',{
+            fetch('https://calm-hollows-99876.herokuapp.com//signin',{
               method:'post',
               headers:{'Content-Type':'application/json'},
               body:JSON.stringify({
                 email:this.state.email,
-                password:this.state.pass
               })
             }).then((response)=>{
               response.json().then((res)=>{
                 if(res == 'sucess'){
                   console.log(res)
-                  fetch('http://localhost:3000/profile/' + this.state.email).then((userres) =>{
+                  fetch('https://calm-hollows-99876.herokuapp.com/profile/' + this.state.email).then((userres) =>{
                     userres.json().then((user)=>{
                       this.props.loadUser(user)
                       this.props.onRouteChange('home');

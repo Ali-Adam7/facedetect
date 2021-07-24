@@ -42,7 +42,7 @@ class App extends Component {
     }
   }
   componentDidMount(){
-    fetch("http://localhost:3000/").then((response)=>{
+    fetch("https://calm-hollows-99876.herokuapp.com/").then((response)=>{
       response.json().then((res)=>{
         console.log(res)
       })
@@ -135,7 +135,7 @@ signOutUser = () =>{
         if(this.state.user.name != ''){
 
        
-        fetch('http://localhost:3000/img', {
+        fetch('https://calm-hollows-99876.herokuapp.com//img', {
           method:'put',
           headers:{'Content-Type':'application/json'},
           body:JSON.stringify({

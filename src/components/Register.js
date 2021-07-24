@@ -48,10 +48,6 @@ render() {
               <label className="db fw6 lh-copy f6" htmlFor="email-address">Email</label>
               <input  onChange = {onEmailChange} className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-75" type="email"/>
             </div>
-            <div className="mv3">
-              <label className="db fw6 lh-copy f6" htmlFor="password">Password</label>
-              <input onChange = {onPassChange} className="b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-75" type="password"/>
-            </div>
           </fieldset>
           <div className="">
          
@@ -59,12 +55,11 @@ render() {
           <div className="lh-copy mt3">
           <input className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib" type="submit" 
             onClick = {() => {
-              fetch('http://localhost:3000/register',{
+              fetch('https://calm-hollows-99876.herokuapp.com//register',{
                 method:'post',
                 headers:{'Content-Type':'application/json'},
                 body:JSON.stringify({
                   email:this.state.email,
-                  password:this.state.pass,
                   name:this.state.name
                 })
               }).then((response)=>{

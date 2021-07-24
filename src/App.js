@@ -128,14 +128,14 @@ signOutUser = () =>{
     })
 
     app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input).then((response) => {
-      this.displayFaceBox(this.calculateLocation(response));
+      this.displayFaceBox(this.calculatextion(response));
       app.models.predict(Clarifai.CELEBRITY_MODEL, this.state.input).then((response2) =>{
         
         this.expression(response2)
         if(this.state.user.name != ''){
 
        
-        fetch('https://calm-hollows-99876.herokuapp.com//img', {
+        fetch('https://calm-hollows-99876.herokuapp.com/img', {
           method:'put',
           headers:{'Content-Type':'application/json'},
           body:JSON.stringify({

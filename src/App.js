@@ -12,8 +12,10 @@ import SignIn from './components/SignIn.js'
 import Register from './components/Register.js'
 
 const app = new Clarifai.App({
-  apiKey: 'b141f9f6bef94672b8220b74330d2b43'
+  apiKey: '69a82082d3e54589bb322e258a918475'
 })
+
+
 
 
 
@@ -126,11 +128,15 @@ signOutUser = () =>{
       image: this.state.input
 
     })
+    console.log("submitted")
 
     app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input).then((response) => {
-      this.displayFaceBox(this.calculatextion(response));
+
+      this.displayFaceBox(this.calculateLocation(response));
+
       app.models.predict(Clarifai.CELEBRITY_MODEL, this.state.input).then((response2) =>{
-        
+
+
         this.expression(response2)
         if(this.state.user.name != ''){
 

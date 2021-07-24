@@ -65,17 +65,18 @@ render() {
               }).then((response)=>{
                 response.json()
                 .then((res)=>{
-                  console.log(res)
-                  this.props.loadUser(res)
-                  this.props.onRouteChange('home');
+                  let {name} = res;
+                  if(name == "error"){
+                    alert("email already registered")
+                  } else {
+                    this.props.loadUser(res)
+                    this.props.onRouteChange('home');
+                  }
+                
                   
               
                 })
-                .catch((err) =>{
-                  this.props.onRouteChange('register');
-
-                })
-
+             
               })
             
             

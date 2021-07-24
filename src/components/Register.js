@@ -63,13 +63,19 @@ render() {
                   name:this.state.name
                 })
               }).then((response)=>{
-                response.json().then((res)=>{
+                response.json()
+                .then((res)=>{
                   console.log(res)
                   this.props.loadUser(res)
                   this.props.onRouteChange('home');
-
+                  
               
                 })
+                .catch((err) =>{
+                  this.props.onRouteChange('register');
+
+                })
+
               })
             
             

@@ -55,7 +55,7 @@ render() {
           <div className="lh-copy mt3">
           <input className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib" type="submit" 
             onClick = {() => {
-              fetch('https://calm-hollows-99876.herokuapp.com//register',{
+              fetch('https://calm-hollows-99876.herokuapp.com/register',{
                 method:'post',
                 headers:{'Content-Type':'application/json'},
                 body:JSON.stringify({

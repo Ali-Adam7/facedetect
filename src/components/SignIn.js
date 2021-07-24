@@ -36,7 +36,7 @@ class SignIn extends Component {
         <div className="">
           <input className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib" type="submit" 
           onClick = {() => {
-            fetch('https://calm-hollows-99876.herokuapp.com//signin',{
+            fetch('https://calm-hollows-99876.herokuapp.com/signin',{
               method:'post',
               headers:{'Content-Type':'application/json'},
               body:JSON.stringify({

@@ -71,7 +71,7 @@ class SignIn extends Component {
         <div className="lh-copy mt3">
         <input className="b ph3 pv2 input-reset ba b--black bg-transparent  pointer f6 dib" type="submit" 
           onClick = {() => onRouteChange('home')}
-          value="Skip (Front-End only)"/>
+          value="Use the app without signing in (Front-End only)"/>
         </div>
         
     </main>

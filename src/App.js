@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React, { useContext, useEffect, useState,createContext } from 'react';
+
 import './index.css';
 import './components/Logo.css'
 import 'tachyons'
@@ -7,25 +8,37 @@ import ImageLinkForm from './components/ImageLinkForm.js'
 import Particles from 'react-particles-js';
 import Clarifai from 'clarifai'
 import FaceRec from './components/FaceRec'
+import { initializeApp } from "firebase/app";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import Register from "./components/register";
+import Welcome from "./components/welcome";
 
-const app = new Clarifai.App({
+const firebaseConfig = {
+  apiKey: "AIzaSyBOwhdU8WFKoCGi8UGGmWVa8NPa3tva1Aw",
+  authDomain: "facedetect-cd7b4.firebaseapp.com",
+  projectId: "facedetect-cd7b4",
+  storageBucket: "facedetect-cd7b4.appspot.com",
+  messagingSenderId: "78088889240",
+  appId: "1:78088889240:web:a7ea2eb724be51c92a81ed"
+};
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const ClarifaiApp = new Clarifai.App({
   apiKey: '0676ebddd5d6413ebdaa101570295a39'
 })
+const App = () =>  {
+  const [name,setName] = useState('Detect Face')
+  const [input,setInput]= useState('')
+  const [image,setImage] =  useState('')
+  const [box,setBox] = useState({})
+  const [skip,setSkip] = useState(false)
+  const [entries,setEntries] = useState({})
+  const [user,setUser] = useState({name:"g"})
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      name:'Detect Face',
-      input: '',
-      image: '',
-      box: {},
-      route: 'home',
-    }
-  }
 
- 
-  calculateLocation = (data) => {
+
+  const calculateLocation = (data) => {
     data = JSON.parse(data)
 
     let Face = data.outputs[0].data.regions[0].region_info.bounding_box
@@ -44,122 +57,77 @@ class App extends Component {
 
   }
 
-  displayFaceBox = (box) => {
-    this.setState({ box: box })
+ const displayFaceBox = (box) => {
+    setBox(box)
   }
 
-  expression = (data) =>{
+  const expression = (data) =>{
     data = JSON.parse(data)
- 
     let name = (   data.outputs[0].data.regions[0].data.concepts[0].name);
-    this.setState({
-      name: name
-    })
-    console.log(name)
+    setName(name)
   }
-  onInputChange = (event) => {
-    this.setState({
-      input: event.target.value,
-
-    })
+ const onInputChange = (event) => {
+    setInput(event.target.value)
   }
 
 
-  onSubmit = () => {
-
-    this.setState({
-      image: this.state.input
-
-    })
+ const onSubmit = async () => {
+    setImage(input)
     console.log("submitted")
 
 
 
 // URL of image to use. Change this to your image.
 
-
-const raw = JSON.stringify({
-  "user_app_id": {
-    "user_id": "clarifai",
-    "app_id": "main"
-  },
-  "inputs": [
-      {
-          "data": {
-              "image": {
-                  "url": this.state.input
+    const raw = JSON.stringify({
+      "user_app_id": {
+        "user_id": "clarifai",
+        "app_id": "main"
+      },
+      "inputs": [
+          {
+              "data": {
+                  "image": {
+                      "url": input
+                  }
               }
           }
-      }
-  ]
-});
+      ]
+    });
 
-const requestOptions = {
-    method: 'POST',
-    headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Key ' + 'beb7f200cfa7481c8963231c1cf454e4'
-    },
-    body: raw
-};
-fetch(`https://api.clarifai.com/v2/models/celebrity-face-detection/versions/2ba4d0b0e53043f38dbbed49e03917b6/outputs`, requestOptions)   .then(response =>   
-    (response.text())).then((text)=>{
-     this.expression((text))
-     this.displayFaceBox(this.calculateLocation((text)));
-
-     if(this.state.user.name != ''){
-
-       
-      fetch('localhost:80000/img', {
-        method:'put',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          email:this.state.user.email,
-        })
-      }).then((response) =>{
-        response.json().then((res)=>{
-          this.setState({
-            entries:res
-          })
-        })
-     
-      })
-    }
-
-
-
-    })
-
-    .catch(error => console.log('error', error));
-
-
-
-
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Key ' + 'beb7f200cfa7481c8963231c1cf454e4'
+        },
+        body: raw
+    };
+    let res = await fetch(`https://api.clarifai.com/v2/models/celebrity-face-detection/versions/2ba4d0b0e53043f38dbbed49e03917b6/outputs`, requestOptions)  
+    let text = await res.text()
+    expression((text))
+    displayFaceBox(calculateLocation((text)));
   }
 
-  onRouteChange = (route) => {
-    if(route == 'home'){
-      this.setState({
-        signedin : true
-      })
-    } 
-    else {
-      this.setState({
-        signedin : false
-      })
-    
-    }
-    this.setState({
-      route : route
-    })
 
-  }
-  render() {
+const Main = () => {
+  return (     <div> 
+
+  <div style={{ display: "flex", justifyContent: 'center' }}><ImageLinkForm
+    onSubmit={onSubmit}
+    onInputChange={onInputChange} 
+    name = {name}/> </div>
+  <FaceRec image={image} box={box}/>
+  </div> )
+}
+
+
 
 
     return (
 
       <div className="App">
+       
         <Particles className="particles"
           param={{
             "particles": {
@@ -274,25 +242,12 @@ fetch(`https://api.clarifai.com/v2/models/celebrity-face-detection/versions/2ba4
           }}
 
         />
-        
-       <div> <div style={{ display: "flex", justifyContent: 'center', margin:50}}><Logo name = "u" entries = {this.state.entries}/> </div>
+    <div style={{ display: "flex", justifyContent: 'center', margin:50}}><Logo name = "u" entries = {entries}/> </div>
+    {auth.currentUser || skip ?   <Main/>: <Welcome setSkip = {setSkip}/>}
 
-
-              <div style={{ display: "flex", justifyContent: 'center' }}><ImageLinkForm
-                onSubmit={this.onSubmit}
-                onInputChange={this.onInputChange} 
-                name = {this.state.name}/> </div>
-              <FaceRec image={this.state.image} box={this.state.box}/>
-            </div>
-
-            
-            
-      
-
-        
       </div>
     );
-  }
+
 }
 
 export default App;

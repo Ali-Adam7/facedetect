@@ -1,22 +1,28 @@
 import React, {useState,useContext} from 'react';
 import app from "../firebase"
-import { getAuth, createUserWithEmailAndPassword,sendEmailVerification  } from "firebase/auth";
-const Register = (props) => {
+import {getAuth,signInWithEmailAndPassword}  from "firebase/auth";
+import  {collection, query, where } from "firebase/firestore";
+import { getFirestore, getDocs } from "firebase/firestore";
+
+const Login = (props) => {
   // Initialize Firebase
   const [email,setEmail] = useState("")
   const [pass,setPass] = useState("")
-  const [name,setName] = useState("")
   const setUser = props.setUser
+  const setUserData = props.setUserData
   const auth = getAuth(app);
 
-  const reg = async () =>{
+  const log = async () =>{
 
   try{
-   let userCredential = await createUserWithEmailAndPassword(auth, email, pass)
-   sendEmailVerification(userCredential.user);
-   await auth.currentUser.reload()
-   setUser(auth.currentUser)
-
+    const db = getFirestore(app);
+    await signInWithEmailAndPassword(auth, email, pass)
+    const ref = collection(db, "Users");
+    const q =  query(ref, where("Email", "==", email));
+    const querySnapshot = await getDocs(q);
+    setUserData(querySnapshot.docs[0].data())
+    await auth.currentUser.reload()
+    setUser(auth.currentUser)
   }
   
   catch (error) {
@@ -29,19 +35,8 @@ const Register = (props) => {
         <main className="pa4 black-80">
           <div className="measure">
             <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
-              <legend className="f1 fw6 ph0 mh0 tc">Register</legend>
-              <div className="mt3">
-                <label className="db fw6 lh-copy f6" htmlFor="name">Name</label>
-                <input
-                  className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
-                  type="text"
-                  name="name"
-                  id="name"
-                  onChange={(txt) =>{
-                    setName(txt.target.value)
-                  }}
-                />
-              </div>
+              <legend className="f1 fw6 ph0 mh0 tc">Login</legend>
+ 
               <div className="mt3">
                 <label className="db fw6 lh-copy f6" htmlFor="email-address">Email</label>
                 <input
@@ -65,7 +60,7 @@ const Register = (props) => {
             </fieldset>
             <div className="mt3 tc">
               <input
-                onClick={reg}
+                onClick={log}
                 className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib"
                 type="submit"
                 value="Log in"
@@ -78,4 +73,4 @@ const Register = (props) => {
       </div>
         )
   }
-  export default Register
+  export default Login

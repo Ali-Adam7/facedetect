@@ -3,7 +3,7 @@ import React from 'react'
 const ImageLinkForm = ({onInputChange, onSubmit, name}) => {
     return(
         <div className = "tc">
-        <h3 style = {{color: 'white'}}>{name.toUpperCase()}</h3>
+        <h3 style = {{color: 'white'}}>{!(name == "Detect Face") ? "The person detected is: " +name.toUpperCase() : name}</h3>
         <div className = "pa4 shadow-5 br3"> 
         <input className = "f4 pa2 " type = "text"
         onChange= {onInputChange}

@@ -1,4 +1,6 @@
 import React, { useContext, useEffect, useState,createContext } from 'react';
+import  {collection, query, where } from "firebase/firestore";
+import { getFirestore, getDocs, updateDoc,doc } from "firebase/firestore";
 
 import './index.css';
 import './components/Logo.css'
@@ -34,9 +36,8 @@ const App = () =>  {
   const [box,setBox] = useState({})
   const [skip,setSkip] = useState(false)
   const [entries,setEntries] = useState({})
-  const [user,setUser] = useState({name:"g"})
-
-
+  const [user,setUser] = useState()
+  const [userData, setUserData] = useState({})
 
   const calculateLocation = (data) => {
     data = JSON.parse(data)
@@ -61,10 +62,30 @@ const App = () =>  {
     setBox(box)
   }
 
-  const expression = (data) =>{
+  const expression = async (data) =>{
     data = JSON.parse(data)
     let name = (   data.outputs[0].data.regions[0].data.concepts[0].name);
     setName(name)
+    
+    // update count:
+    const db = getFirestore(app);
+    let newFaces = userData.Faces
+    newFaces.push(name)
+    setUserData(userData => ({
+ 
+          ...userData,   
+          Faces: newFaces      
+      
+  } ))
+
+  const ref = collection(db, "Users");
+  const q =  query(ref, where("Email", "==", user.email));
+  const querySnapshot = await getDocs(q);
+
+  await updateDoc(querySnapshot.docs[0].ref, {
+    Faces: newFaces
+  });
+  
   }
  const onInputChange = (event) => {
     setInput(event.target.value)
@@ -73,10 +94,6 @@ const App = () =>  {
 
  const onSubmit = async () => {
     setImage(input)
-    console.log("submitted")
-
-
-
 // URL of image to use. Change this to your image.
 
     const raw = JSON.stringify({
@@ -105,14 +122,20 @@ const App = () =>  {
     };
     let res = await fetch(`https://api.clarifai.com/v2/models/celebrity-face-detection/versions/2ba4d0b0e53043f38dbbed49e03917b6/outputs`, requestOptions)  
     let text = await res.text()
-    expression((text))
+    await expression((text))
     displayFaceBox(calculateLocation((text)));
-  }
 
+
+}
 
 const Main = () => {
-  return (     <div> 
+   return (     <div> 
+    <div className='tc'>
+    <h3 style = {{color: 'white'}}>{"Welcome: " + userData.Name}</h3>
+    <h3 style = {{color: 'white'}}>{"You have detected " + userData.Faces.length + " Faces"}</h3>
 
+       
+    </div>
   <div style={{ display: "flex", justifyContent: 'center' }}><ImageLinkForm
     onSubmit={onSubmit}
     onInputChange={onInputChange} 
@@ -122,9 +145,7 @@ const Main = () => {
 }
 
 
-
-
-    return (
+  return (
 
       <div className="App">
        
@@ -243,7 +264,7 @@ const Main = () => {
 
         />
     <div style={{ display: "flex", justifyContent: 'center', margin:50}}><Logo name = "u" entries = {entries}/> </div>
-    {auth.currentUser || skip ?   <Main/>: <Welcome setSkip = {setSkip}/>}
+    {auth.currentUser || skip ?   <Main userData = {userData} />: <Welcome setUserData = {setUserData} setUser = {setUser} setSkip = {setSkip}/>}
 
       </div>
     );

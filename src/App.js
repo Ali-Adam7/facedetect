@@ -68,6 +68,9 @@ const App = () =>  {
     setName(name)
     
     // update count:
+    if(user) {
+      
+
     const db = getFirestore(app);
     let newFaces = userData.Faces
     newFaces.push(name)
@@ -85,7 +88,7 @@ const App = () =>  {
   await updateDoc(querySnapshot.docs[0].ref, {
     Faces: newFaces
   });
-  
+}
   }
  const onInputChange = (event) => {
     setInput(event.target.value)
@@ -130,12 +133,14 @@ const App = () =>  {
 
 const Main = () => {
    return (     <div> 
+         {user &&
     <div className='tc'>
+  
     <h3 style = {{color: 'white'}}>{"Welcome: " + userData.Name}</h3>
     <h3 style = {{color: 'white'}}>{"You have detected " + userData.Faces.length + " Faces"}</h3>
 
-       
-    </div>
+    
+    </div>  }
   <div style={{ display: "flex", justifyContent: 'center' }}><ImageLinkForm
     onSubmit={onSubmit}
     onInputChange={onInputChange} 

@@ -12,7 +12,7 @@ const setUserData = props.setUserData
 const [route,setRoute] = useState("")
     return (
       <div> 
-        {route == "register" ? <Register setUser = {setUser} /> : route == "login" ? <Login setUserData = {setUserData} setUser = {setUser} /> :            
+        {route == "register" ? <Register setUser = {setUser} setUserData = {setUserData} /> : route == "login" ? <Login setUserData = {setUserData} setUser = {setUser} /> :            
         
         <article className="br3 ba b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center">
          <main className="pa4 black-80">

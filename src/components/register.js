@@ -1,6 +1,8 @@
 import React, {useState,useContext} from 'react';
 import app from "../firebase"
-import { getAuth, createUserWithEmailAndPassword,sendEmailVerification  } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword,sendEmailVerification ,  } from "firebase/auth";
+import { getFirestore, getDocs,doc ,setDoc } from "firebase/firestore";
+
 const Register = (props) => {
   // Initialize Firebase
   const [email,setEmail] = useState("")
@@ -8,13 +10,19 @@ const Register = (props) => {
   const [name,setName] = useState("")
   const setUser = props.setUser
   const auth = getAuth(app);
-
+ const setUserData = props.setUserData
   const reg = async () =>{
 
   try{
    let userCredential = await createUserWithEmailAndPassword(auth, email, pass)
    sendEmailVerification(userCredential.user);
    await auth.currentUser.reload()
+    let userData = {Name: name, Email: email, Faces : []}
+    const db = getFirestore(app);
+  await setDoc(doc(db, "Users", auth.currentUser.uid), 
+    userData
+  );
+    setUserData(userData)
    setUser(auth.currentUser)
 
   }
